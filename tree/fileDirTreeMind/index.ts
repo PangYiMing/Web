@@ -16,7 +16,7 @@ function walkSync(currentDirPath, callback) {
         }
     });
 }
-const dirPath = '/Users/lyndonpang/workspace/Web'
+const dirPath = path.resolve(__dirname, '../../')
 const rootName = 'Web'
 const rootNodes = {
     "id": "rmind_root_node", "text": rootName, "showChildren": true, "children": []
@@ -51,7 +51,7 @@ walkSync(dirPath, function (filePath, stat) {
 });
 console.log(JSON.stringify(rootNodes));
 
-fs.writeFileSync(dirPath+'/目录大纲.rmf',JSON.stringify(rootNodes))
+fs.writeFileSync(dirPath + '/目录大纲.rmf', JSON.stringify(rootNodes))
 
 interface Element {
     children: Element[]
