@@ -15,7 +15,10 @@ function objFormatStr(params, lIndex = 1) {
     return string
 }
 
-export function stringMul(params, len) {
+export function stringMul(params, len,) {
+    if (len <= 0) {
+        return ''
+    }
     let str = ''
     for (let i = 0; i < len; i++) {
         str += params
@@ -23,6 +26,10 @@ export function stringMul(params, len) {
     return str
 }
 
+export function stringMulLastEnd(params, len, targetStr) {
+
+    return stringMul(params, len) + targetStr
+}
 
 
 function printObj(params) {
