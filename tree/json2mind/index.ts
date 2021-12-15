@@ -1,57 +1,73 @@
 const fs = require('fs');
 const path = require('path');
 const uuid = require('uuid');
+import { data } from '../../data'
 // console.log(uuid.v4())
 // sync version
-function walkSync(currentDirPath, callback) {
+// function walkSync(currentDirPath, callback) {
 
-    fs.readdirSync(currentDirPath).forEach(function (name) {
-        var filePath = path.join(currentDirPath, name);
-        var stat = fs.statSync(filePath);
-        if (stat.isFile()) {
-            callback(filePath, stat);
-        } else if (stat.isDirectory()) {
-            callback(filePath, stat);
-            walkSync(filePath, callback);
+//     fs.readdirSync(currentDirPath).forEach(function (name) {
+//         var filePath = path.join(currentDirPath, name);
+//         var stat = fs.statSync(filePath);
+//         if (stat.isFile()) {
+//             callback(filePath, stat);
+//         } else if (stat.isDirectory()) {
+//             callback(filePath, stat);
+//             walkSync(filePath, callback);
+//         }
+//     });
+// }
+
+
+function walkSync2(curArr, callback, pathArr = []) {
+
+    curArr.forEach(function (item, index) {
+        // var filePath = path.join(curArr, name);
+        // var stat = fs.statSync(filePath);
+
+        if (item.isFile) {
+            callback(item, item.isFile, [...pathArr, item.key]);
+        } else {
+            callback(item, item.isFile, [...pathArr, item.key]);
+            walkSync2(item.children, callback, [...pathArr, item.key]);
         }
     });
 }
 const dirPath = path.resolve(__dirname, '../../')
-const rootName = 'Web'
+const rootName = 'root'
 const rootNodes = {
-    "id": "rmind_root_node", "text": rootName, "showChildren": true, "children": []
+    "id": "rmind_root_node", "text": rootName, "showChildren": true, "children": [], key: 'shared-root'
 }
 let root: Element = rootNodes
-walkSync(dirPath, function (filePath, stat) {
+data[0].children[0].title.props.children[0].props.children.props.title.props.children[0].props.children
+walkSync2(data[0].children, function (item, isFile, pathArr) {
     // do something with "filePath"...
-    if (filePath.indexOf(dirPath + '/.git') === -1) {
-        var relative = filePath.replace(dirPath + '/', '')
-        const pathArr: string[] = relative.split('/')
-        // console.log('path', pathArr)
-
-        const node = {
-            "id": uuid.v4(), "text": pathArr[pathArr.length - 1],
-            "showChildren": true,
-            "children": [],
-            filePath: relative,
-            isDir: stat.isDirectory()
-        }
-        // TODO 找到对应的节点
-        if (pathArr.length !== 1) {
-            // console.log('path', pathArr)
-            root = getByKeyValue(rootNodes, pathArr.slice(0, -1), 'text')
-        } else {
-            root = rootNodes
-        }
-        root.children.push(node)
-
-
+    // var relative = item.replace(dirPath + '/', '')
+    // const pathArr: string[] = relative.split('/')
+    // console.log('path', pathArr)
+    const node = {
+        "id": uuid.v4(), "text": item.title.props.children[0].props.children.props.title.props.children[0].props.children.replace('标题：', ''),
+        "showChildren": true,
+        "key": item.key,
+        "children": [],
+        // item: JSON.stringify(item),
+        isDir: !isFile
     }
+    // TODO 找到对应的节点
+    if (pathArr.length !== 1) {
+        // console.log('path', pathArr)
+        root = getByKeyValue(rootNodes, pathArr.slice(0, -1), 'key')
+    } else {
+        root = rootNodes
+    }
+    root.children.push(node)
+
+
 
 });
 console.log(JSON.stringify(rootNodes));
 
-fs.writeFileSync(dirPath + '/目录大纲.rmf', JSON.stringify(rootNodes))
+fs.writeFileSync(dirPath + '/tree目录大纲.rmf', JSON.stringify(rootNodes))
 
 interface Element {
     children: Element[]
