@@ -38,15 +38,15 @@ export function walkSync({
         callback = function () { }
     }
 
+    const fileArr = fs.readdirSync(dirPath)
 
-
-    fs.readdirSync(dirPath).forEach(function (name) {
+    fileArr.forEach(function (name, index) {
         var filePath = path.join(dirPath, name);
         var stat = fs.statSync(filePath);
         if (stat.isFile()) {
-            callback(filePath, stat, { deep });
+            callback(filePath, stat, { deep, isEnd: (fileArr.length - 1) === index });
         } else if (stat.isDirectory()) {
-            callback(filePath, stat, { deep });
+            callback(filePath, stat, { deep, isEnd: (fileArr.length - 1) === index });
             if (maxDeep < 0 || maxDeep > deep) {
                 walkSync({
                     dirPath: filePath, callback, maxDeep, deep: deep + 1
