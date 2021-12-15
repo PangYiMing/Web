@@ -1,7 +1,7 @@
 import path from "path";
-import { walkSync } from "./readDirPaths";
-import { stringMul, stringMulLastEnd } from "./strUtils";
-import { execAbortArr, strNotIncludeStringInArr } from "./utils";
+import { walkSync } from "../utils/readDirPaths";
+import { stringMul, stringMulLastEnd } from "../utils/strUtils";
+import { execAbortArr, strNotIncludeStringInArr } from "../utils/utils";
 
 const dirPath = path.resolve(__dirname, '../../')
 
@@ -36,5 +36,5 @@ function callback(filePath: string, stat: any, treeOpt: { deep: number; }) {
 }
 
 walkSync({
-    dirPath, callback, maxDeep: 3, deep: 1
+    dirPath, callback, maxDeep: 3
 });
