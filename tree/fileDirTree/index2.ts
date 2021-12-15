@@ -9,34 +9,31 @@ let abortArr: string[] = execAbortArr(['.git', 'node_modules'])
 
 console.log('abortArr', abortArr)
 
-let pre = undefined
-// let dirTreeArr = []
+let isFirst = true
+let dirTreeArr = []
 function callback(filePath: string, stat: any, treeOpt: { deep: number; isEnd: boolean; }) {
     const { deep, isEnd } = treeOpt
     // do something with "filePath"...
-    if (pre === undefined) {
+    if (isFirst) {
         console.log(dirPath.split(path.sep).pop())
     }
     if (filePath && strNotIncludeStringInArr(filePath, abortArr)) {
-        // dirTreeArr.push({
-        //     filePath, stat, treeOpt
-        // })
-        // if (stat.isFile()) {
-        //     console.log('  ' + stringMulLastEnd('    ', deep - 1, isEnd ? '└─' : '├─') + filePath.split(path.sep).pop())
-        // } else {
-
-        console.log('  ' + stringMulLastEnd('│    ', deep - 1, isEnd ? '└─' : '├─') + filePath.split(path.sep).pop())
-        // }
+        dirTreeArr.push({
+            filePath, stat, treeOpt
+        })
     }
-    pre = stat.isFile()
+    isFirst = false
 
 }
+// console.log('  ' + stringMulLastEnd('│    ', deep - 1, isEnd ? '└─' : '├─') + filePath.split(path.sep).pop())
 
 walkSync({
     dirPath, callback, maxDeep: 3, deep: 1
 });
 
+function print(arr: any[]) {
 
+}
 
 
 
