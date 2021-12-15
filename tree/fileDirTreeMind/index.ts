@@ -1,53 +1,42 @@
-const fs = require('fs');
-const path = require('path');
-const uuid = require('uuid');
-// console.log(uuid.v4())
-// sync version
-function walkSync(currentDirPath, callback) {
+import fs from "fs";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
+import { walkSync } from "../utils/readDirPaths";
 
-    fs.readdirSync(currentDirPath).forEach(function (name) {
-        var filePath = path.join(currentDirPath, name);
-        var stat = fs.statSync(filePath);
-        if (stat.isFile()) {
-            callback(filePath, stat);
-        } else if (stat.isDirectory()) {
-            callback(filePath, stat);
-            walkSync(filePath, callback);
-        }
-    });
-}
 const dirPath = path.resolve(__dirname, '../../')
 const rootName = 'Web'
 const rootNodes = {
     "id": "rmind_root_node", "text": rootName, "showChildren": true, "children": []
 }
 let root: Element = rootNodes
-walkSync(dirPath, function (filePath, stat) {
-    // do something with "filePath"...
-    if (filePath.indexOf(dirPath + '/.git') === -1) {
-        var relative = filePath.replace(dirPath + '/', '')
-        const pathArr: string[] = relative.split('/')
-        // console.log('path', pathArr)
-
-        const node = {
-            "id": uuid.v4(), "text": pathArr[pathArr.length - 1],
-            "showChildren": true,
-            "children": [],
-            filePath: relative,
-            isDir: stat.isDirectory()
-        }
-        // TODO 找到对应的节点
-        if (pathArr.length !== 1) {
+walkSync({
+    dirPath, callback: function (filePath, stat) {
+        // do something with "filePath"...
+        if (filePath.indexOf(dirPath + '/.git') === -1) {
+            var relative = filePath.replace(dirPath + '/', '')
+            const pathArr: string[] = relative.split('/')
             // console.log('path', pathArr)
-            root = getByKeyValue(rootNodes, pathArr.slice(0, -1), 'text')
-        } else {
-            root = rootNodes
+
+            const node = {
+                "id": uuidv4(), "text": pathArr[pathArr.length - 1],
+                "showChildren": true,
+                "children": [],
+                filePath: relative,
+                isDir: stat.isDirectory()
+            }
+            // TODO 找到对应的节点
+            if (pathArr.length !== 1) {
+                // console.log('path', pathArr)
+                root = getByKeyValue(rootNodes, pathArr.slice(0, -1), 'text')
+            } else {
+                root = rootNodes
+            }
+            root.children.push(node)
+
+
         }
-        root.children.push(node)
 
-
-    }
-
+    }, maxDeep: -1
 });
 console.log(JSON.stringify(rootNodes));
 
