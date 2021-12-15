@@ -21,11 +21,11 @@ function callback(filePath: string, stat: any, treeOpt: { deep: number; isEnd: b
         dirTreeArr.push({
             filePath, stat, treeOpt
         })
+        console.log('  ' + stringMulLastEnd('│    ', deep - 1, isEnd ? '└─' : '├─') + filePath.split(path.sep).pop())
     }
     isFirst = false
 
 }
-// console.log('  ' + stringMulLastEnd('│    ', deep - 1, isEnd ? '└─' : '├─') + filePath.split(path.sep).pop())
 
 walkSync({
     dirPath, callback, maxDeep: 3, deep: 1
