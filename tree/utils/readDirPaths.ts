@@ -15,6 +15,7 @@ interface readFileSystemProps {
     callback: Function;
     maxDeep?: number;
     deep: number;
+    parent?: any;
 }
 
 /**
@@ -42,7 +43,7 @@ export function walkSync({
  * @returns 
  */
 function readFileSystem({
-    dirPath, callback, maxDeep, deep = 1
+    dirPath, callback, maxDeep, deep = 1, parent = {}
 }: readFileSystemProps) {
 
     if (typeof dirPath !== 'string') {
@@ -80,13 +81,27 @@ function readFileSystem({
     fileArr.forEach(function (name, index) {
         var filePath = path.join(dirPath, name);
         var stat = fs.statSync(filePath);
+        const isEnd = (fileArr.length - 1) === index
         if (stat.isFile()) {
-            callback(filePath, stat, { deep, isEnd: (fileArr.length - 1) === index });
+
+            callback(filePath, stat, {
+                deep, isEnd, parent
+            });
         } else if (stat.isDirectory()) {
-            callback(filePath, stat, { deep, isEnd: (fileArr.length - 1) === index });
+            callback(filePath, stat, {
+                deep, isEnd, parent
+            });
             if (maxDeep < 0 || maxDeep > deep) {
+                if (!parent.isEndArr) {
+                    parent.isEndArr = []
+                }
                 readFileSystem({
-                    dirPath: filePath, callback, maxDeep, deep: deep + 1
+                    dirPath: filePath, callback, maxDeep, deep: deep + 1, parent: {
+                        ...parent,
+                        isEnd,
+                        isEndArr: [...parent.isEndArr, isEnd],
+
+                    }
                 });
             }
         }
