@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Resize observer text test</title>
+    <style>
+        html {
+            height: 100%;
+            font-family: 'helvetica neue', arial, sans-serif;
+        }
+
+        body {
+            height: inherit;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        body>div {
+            background-color: #eee;
+            border: 1px solid #ccc;
+            padding: 20px;
+            width: 50%;
+            min-width: 320px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        p {
+            line-height: 1.5;
+        }
+
+        form {
+            width: 100%;
+        }
+
+        form>div {
+            display: flex;
+        }
+
+        form label {
+            flex: 2;
+        }
+
+        form input {
+            flex: 3;
+        }
+
+        input[type="checkbox"] {
+            height: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>尝试ResizeObserver</h1>
+        <p>字体会随着宽度变大，变小。监听dom属性的变化并不需要，一个库。实际上关键的代码也就一行。比如
+            <code>new ResizeObserver(entries => {console.log('entries', entries); }).observe(divElem)</code>
+            。当然，如果你写一个成熟的应用，那么何时卸载这个监听也是你必须考虑的。详细见<a
+                href="https://github.com/PangYiMing/Web/demo/resizeObserver.html">源码</a>
+        </p>
+        <form>
+            <div><label>Observer enabled:</label><input type="checkbox" checked></div>
+            <div><label>Adjust width:</label><input type="range" value="600" min="300" max="1300"></div>
+        </form>
+    </div>
+    <script>
+
+        if (window.ResizeObserver) {
+            const h1Elem = document.querySelector('h1');
+            const pElem = document.querySelector('p');
+            const divElem = document.querySelector('body > div');
+            const slider = document.querySelector('input[type="range"]');
+            const checkbox = document.querySelector('input[type="checkbox"]');
+
+            divElem.style.width = '600px';
+
+            slider.addEventListener('input', () => {
+                divElem.style.width = slider.value + 'px';
+            })
+
+            const resizeObserver = new ResizeObserver(entries => {
+                console.log('entries', entries)
+                for (let entry of entries) {
+                    if (entry.contentBoxSize) {
+                        // Checking for chrome as using a non-standard array
+                        if (entry.contentBoxSize[0]) {
+                            h1Elem.style.fontSize = Math.max(1.5, entry.contentBoxSize[0].inlineSize / 200) + 'rem';
+                            pElem.style.fontSize = Math.max(1, entry.contentBoxSize[0].inlineSize / 600) + 'rem';
+                        } else {
+                            h1Elem.style.fontSize = Math.max(1.5, entry.contentBoxSize.inlineSize / 200) + 'rem';
+                            pElem.style.fontSize = Math.max(1, entry.contentBoxSize.inlineSize / 600) + 'rem';
+                        }
+
+                    } else {
+                        h1Elem.style.fontSize = Math.max(1.5, entry.contentRect.width / 200) + 'rem';
+                        pElem.style.fontSize = Math.max(1, entry.contentRect.width / 600) + 'rem';
+                    }
+                }
+                console.log('Size changed');
+            });
+
+            resizeObserver.observe(divElem);
+
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    resizeObserver.observe(divElem);
+                } else {
+                    resizeObserver.unobserve(divElem);
+                }
+            });
+        } else {
+            console.log('Resize observer not supported!');
+        }
+    </script>
+</body>
+
+</html>
